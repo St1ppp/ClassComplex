@@ -1,7 +1,7 @@
 from math import gcd
 
 class Rational:
-    def __init__(self, num, den):
+    def __init__(self, num: int, den: int):
         self.num = num
         self.den = den
 
@@ -26,19 +26,42 @@ class Rational:
     
     @den.setter
     def den(self, value):
-        if type(value) is not int or value <= 0:
-            raise TypeError("denominator must be natural")
+        if type(value) is not int:
+            raise TypeError("denominator must be an integer")
+        if value == 0:
+            raise ValueError("denominator can't be 0")
+        if value < 0:
+            value *= -1
+            self.num = self.num * -1
         self._den = value
 
     @staticmethod
-    def sign(a):
+    def sign(a: int) -> int:
+        """
+        Returns the sign of a number.
+
+        :param a: The number whose sign needs to be determined.
+        :return: 1 if the number is positive, -1 if negative.
+        """
         return 1 if a > 0 else -1
-    
+
     @staticmethod
     def root(base: 'Rational', n: int) -> 'Rational':
+        """
+        Calculates the n-th root of a rational number.
+
+        :param base: The rational number from which the root is extracted.
+        :param n: The degree of the root (a positive integer).
+        :raises ValueError: if n in negative or zero.
+        :raises ValueError: If the n-th root of base is irrational.
+        :return: The rational number that is the n-th root of base.
+        """
+        if n <= 0:
+            raise ValueError("n must be a positive integer")
+        
         if n == 1:
             return base
-        
+
         num_root_candidate = round(base.num ** (1 / n))
         den_root_candidate = round(base.den ** (1 / n))
 
@@ -46,12 +69,20 @@ class Rational:
             return Rational(num_root_candidate, den_root_candidate)
         else:
             raise ValueError(f"The {n}-th root of {base} is irrational")
-        
+
     @staticmethod
-    def float_to_rational(float_number):
+    def float_to_rational(float_number: float) -> 'Rational':
+        """
+        Converts a floating-point number to a rational number.
+
+        The conversion is performed with a precision of 10 decimal places.
+
+        :param float_number: The floating-point number to convert.
+        :return: The rational representation of the float_number.
+        """
         float_rounded = round(float_number, 10)
         return Rational(int(float_rounded*(10**10)), 10**10)
-        
+     
     def __add__(self, other):
         if type(other) is int:
             return Rational(self.num + other*self.den, self.den)
@@ -119,15 +150,11 @@ class Rational:
 
 
     def __iadd__(self, other):
-        summ = self.__add__(other)
-        self.num = summ.num
-        self.den = summ.den
+        self.__dict__ = self.__add__(other).__dict__
         return self
 
     def __imul__(self, other):
-        mul = self.__mul__(other)
-        self.num = mul.num
-        self.den = mul.den
+        self.__dict__ = self.__mul__(other).__dict__
         return self
 
     def __isub__(self, other):
@@ -135,9 +162,7 @@ class Rational:
         return self
 
     def __itruediv__(self, other):
-        div = self.__truediv__(other)
-        self.num = div.num
-        self.den = div.den
+        self.__dict__ = self.__truediv__(other).__dict__
         return self
 
 
@@ -156,4 +181,5 @@ class Rational:
         if self.den == 1:
             return f"{self.num}"
         return f"{self.num}/{self.den}"
+
 

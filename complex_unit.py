@@ -139,6 +139,12 @@ class TestComplex(unittest.TestCase):
         result = c / n
         self.assertEqual(result, Complex(Rational(3, 1), Rational(4, 1)))
 
+    def test_truediv_zero(self):
+        c = Complex(6, 8)
+        r = Rational(0, 1)
+        with self.assertRaises(ZeroDivisionError):
+            _ = c / r
+
     def test_truediv_type_error(self):
         c = Complex(1, 2)
         with self.assertRaises(TypeError):
@@ -292,6 +298,11 @@ class TestComplex(unittest.TestCase):
         c /= n
         self.assertEqual(c, Complex(Rational(3, 1), Rational(4, 1)))
 
+    def test_itruediv_zero(self):
+        c = Complex(6, 8)
+        r = Rational(0, 1)
+        self.assertRaises(ZeroDivisionError, c.__itruediv__, r)
+
     def test_abs(self):
         c = Complex(3, 4)
         self.assertAlmostEqual(c.abs(), 5.0)
@@ -422,6 +433,48 @@ class TestComplex(unittest.TestCase):
         c.print_exp_form(2)
         self.assertEqual(stdout.getvalue(), "5*exp(-1.57i)\n")
     
+    def test_add_large_numbers(self):
+        c1 = Complex(10**100, 2 * 10**100)
+        c2 = Complex(3 * 10**100, 4 * 10**100)
+        result = c1 + c2
+        self.assertEqual(result, Complex(Rational(4 * 10**100, 1), Rational(6 * 10**100, 1)))
+
+    def test_sub_large_numbers(self):
+        c1 = Complex(5 * 10**50, 3 * 10**50)
+        c2 = Complex(2 * 10**50, 1 * 10**50)
+        result = c1 - c2
+        self.assertEqual(result, Complex(Rational(3 * 10**50, 1), Rational(2 * 10**50, 1)))
+
+    def test_mul_large_numbers(self):
+        c1 = Complex(10**50, 2 * 10**50)
+        c2 = Complex(3 * 10**50, 4 * 10**50)
+        result = c1 * c2
+        self.assertEqual(result, Complex(Rational(-5 * 10**100, 1), Rational(10 * 10**100, 1)))
+
+    def test_truediv_large_numbers(self):
+        c1 = Complex(6 * 10**50, 8 * 10**50)
+        c2 = Complex(2 * 10**50, 1 * 10**50)
+        result = c1 / c2
+        self.assertEqual(result, Complex(Rational(4, 1), Rational(2, 1)))
+
+    def test_abs_large_numbers(self):
+        c = Complex(3 * 10**100, 4 * 10**100)
+        self.assertAlmostEqual(c.abs(), 5 * 10**100)
+
+    def test_pow_large_numbers(self):
+        c = Complex(10**50, 10**50)
+        result = c ** 5
+        r = (2 * (10**100))**0.5
+        phi = math.pi / 4
+        r_pow_n = r ** 5
+        cos_n_phi = math.cos(5 * phi)
+        sin_n_phi = math.sin(5 * phi)
+        expected_real = r_pow_n * cos_n_phi
+        expected_imag = r_pow_n * sin_n_phi
+        expected_real_rational = Rational.float_to_rational(expected_real)
+        expected_imag_rational = Rational.float_to_rational(expected_imag)
+        self.assertEqual(result.Re, expected_real_rational)
+        self.assertEqual(result.Im, expected_imag_rational)
 
 if __name__ == '__main__':
     unittest.main()

@@ -60,9 +60,13 @@ class Complex:
     
     def __truediv__(self, other):
         if type(other) is Complex:
+            if other.Re == 0 and other.Im == 0:
+                raise ZeroDivisionError("Cannot divide by zero")
             return Complex(((self.Re*other.Re+self.Im*other.Im)/(other.Re**2 + other.Im**2)),\
                             ((self.Im*other.Re-self.Re*other.Im)/(other.Re**2 + other.Im**2)))
         elif type(other) in (Rational, int):
+            if other == 0:
+                raise ZeroDivisionError("Cannot divide by zero")
             return Complex(self.Re / other, self.Im / other)
         else:
             raise TypeError("Cannot divide Complex and " + type(other))
@@ -76,41 +80,40 @@ class Complex:
             return False
 
     def __iadd__(self, other):
-        summ = self.__add__(other)
-        self.Re = summ.Re
-        self.Im = summ.Im
+        self.__dict__ = self.__add__(other).__dict__
         return self
-    
+
+    def __imul__(self, other):
+        self.__dict__ = self.__mul__(other).__dict__
+        return self
+
     def __isub__(self, other):
         self.__iadd__(-other)
         return self
-    
-    def __imul__(self, other):
-        mult = self.__mul__(other)
-        self.Re = mult.Re
-        self.Im = mult.Im
-        return self
-    
+
     def __itruediv__(self, other):
-        div = self.__truediv__(other)
-        self.Re = div.Re
-        self.Im = div.Im
+        self.__dict__ = self.__truediv__(other).__dict__
         return self
 
 
     def abs(self):
-        """Вычисляет модуль комплексного числа."""
+        """Calculates the modulus (absolute value) of the complex number.
+
+        :return: The modulus of the complex number.
+        """
         num = self.Re**2 + self.Im**2
         return math.sqrt(num.num/num.den)
 
     def arg(self):
-        """Вычисляет аргумент (фазу) комплексного числа в радианах."""
+        """Calculates the argument (phase) of the complex number in radians.
+
+        :return: The argument (phase) of the complex number.
+        """
         Re = self.Re.num/self.Re.den
         Im = self.Im.num/self.Im.den
         return math.atan2(Im, Re)
 
     def __pow__(self, n: int):
-        """Возводит комплексное число в целую степень n."""
         if type(n) is not int:
             raise TypeError("power should be int")
         r = self.abs()
@@ -136,12 +139,26 @@ class Complex:
             im_string = str(self.Im*im_sign) if self.Im.den == 1 else f"({self.Im*im_sign})"
             return re_string + (" + " if im_sign == 1 else " - ") + im_string + "i"
     
-    def print_trig_form(self, digits):
+    def print_trig_form(self, digits: int):
+        """Prints the trigonometric form of the complex number.
+
+        The trigonometric form is represented as r*(cos(phi) + isin(phi)),
+        where r is the modulus and phi is the argument.
+
+        :param digits: The number of decimal places to round the modulus and argument to.
+        """
         phi = round(self.arg(), digits)
         r = round(int(self.abs()) if (int(self.abs()) == self.abs()) else self.abs(), digits)
         print(f"{r}*(cos({phi}) + isin({phi}))")
     
-    def print_exp_form(self, digits):
+    def print_exp_form(self, digits: int):
+        """Prints the exponential form of the complex number.
+
+        The exponential form is represented as r*exp(phi*i),
+        where r is the modulus and phi is the argument.
+
+        :param digits: The number of decimal places to round the modulus and argument to.
+        """
         phi = round(self.arg(), digits)
         r = round(int(self.abs()) if (int(self.abs()) == self.abs()) else self.abs(), digits)
         print(f"{r}*exp({phi}i)")

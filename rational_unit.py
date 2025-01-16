@@ -13,6 +13,11 @@ class TestRational(unittest.TestCase):
         self.assertEqual(r.num, 2)
         self.assertEqual(r.den, 3)
 
+    def test_init_den_setter_negative(self):
+        r = Rational(2, -3)
+        self.assertEqual(r, Rational(-2, 3))
+        
+
     def test_init_type_error_num(self):
         with self.assertRaises(TypeError):
             Rational("a", 2)
@@ -22,12 +27,12 @@ class TestRational(unittest.TestCase):
             Rational(2, "b")
 
     def test_init_value_error_den_zero(self):
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             Rational(2, 0)
 
-    def test_init_value_error_den_negative(self):
-        with self.assertRaises(TypeError):
-            Rational(2, -1)
+    def test_init_zero_num(self):
+        r = Rational(0, 3)
+        self.assertEqual(r.num, 0)
 
     def test_num_getter(self):
         r = Rational(2, 3)
@@ -59,13 +64,8 @@ class TestRational(unittest.TestCase):
 
     def test_den_setter_value_error_zero(self):
         r = Rational(2, 3)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValueError):
             r.den = 0
-
-    def test_den_setter_value_error_negative(self):
-        r = Rational(2, 3)
-        with self.assertRaises(TypeError):
-            r.den = -1
 
     def test_add(self):
         r1 = Rational(1, 2)
@@ -230,6 +230,16 @@ class TestRational(unittest.TestCase):
         with self.assertRaises(ValueError):
             _ = r ** 1.5
 
+    def test_root_negative_n(self):
+        r = Rational(1, 2)
+        with self.assertRaises(ValueError):
+            _ = r.root(self, -1)
+            
+    def test_root_zero_n(self):
+        r = Rational(1, 2)
+        with self.assertRaises(ValueError):
+            _ = r.root(self, 0)
+            
     def test_iadd(self):
         r1 = Rational(1, 2)
         r2 = Rational(1, 4)
